@@ -7,7 +7,7 @@ import { useLatest } from '../lib/hooks/useLatest.ts';
 import { ContentBlock } from './ContentBlock.tsx';
 import type { PhotoEntry, Render3DItem, VideoItem, WebdevProjectItem, BlogPostMeta } from '../lib/types/content.ts';
 
-const HomeSection: React.FC = () => {
+export const HomeSection: React.FC = () => {
   const { active, setActive } = useSection();
   const blogs = useLatest<BlogPostMeta>('/data/posts.json');
   const videos = useLatest<VideoItem>('/data/videos.json');
@@ -143,5 +143,3 @@ const HomeSection: React.FC = () => {
     </div>
   );
 };
-
-export default HomeSection;

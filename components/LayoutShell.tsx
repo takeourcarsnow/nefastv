@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Header } from './Header.tsx';
 import { BackgroundEffects } from './BackgroundEffects.tsx';
 import { WinampPlayer } from './WinampPlayer.tsx';
@@ -9,30 +9,31 @@ import { SectionProvider } from './SectionContext.tsx';
 import { usePerformanceMonitor } from './hooks.ts';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
 
-// Lazy load sections for better performance
-const HomeSection = React.lazy(() => import('./HomeSection.tsx'));
-const BlogSection = React.lazy(() => import('./BlogSection.tsx'));
-const PhotoSection = React.lazy(() => import('./PhotoSection.tsx'));
-const VideoSection = React.lazy(() => import('./VideoSection.tsx'));
-const Renders3DSection = React.lazy(() => import('./Renders3DSection.tsx'));
-const WebdevSection = React.lazy(() => import('./WebdevSection.tsx'));
-const MiscSection = React.lazy(() => import('./MiscSection.tsx'));
-
-// Placeholder removed (unused) to avoid lint warning
+// Use React.lazy for client-side code splitting (avoids importing next/dynamic types in client files)
+const HomeSection = React.lazy(() => import('./HomeSection.tsx').then((m) => ({ default: m.HomeSection })));
+const BlogSection = React.lazy(() => import('./BlogSection.tsx').then((m) => ({ default: m.BlogSection })));
+const PhotoSection = React.lazy(() => import('./PhotoSection.tsx').then((m) => ({ default: m.PhotoSection })));
+const VideoSection = React.lazy(() => import('./VideoSection.tsx').then((m) => ({ default: m.VideoSection })));
+const Renders3DSection = React.lazy(() => import('./Renders3DSection.tsx').then((m) => ({ default: m.Renders3DSection })));
+const WebdevSection = React.lazy(() => import('./WebdevSection.tsx').then((m) => ({ default: m.WebdevSection })));
+const MiscSection = React.lazy(() => import('./MiscSection.tsx').then((m) => ({ default: m.MiscSection })));
 
 const Inner: React.FC = () => {
   usePerformanceMonitor();
+
   React.useEffect(() => {
     const handler = (e: MouseEvent) => {
       const tgt = e.target as HTMLElement | null;
       if (tgt) {
-        console.log('[LayoutShell] document click on', tgt.tagName, tgt.className, tgt.id);
+        // keep this lightweight for dev diagnostics only
+        // eslint-disable-next-line no-console
+        console.debug('[LayoutShell] click:', tgt.tagName, tgt.className, tgt.id);
       }
     };
     document.addEventListener('click', handler, true);
     return () => document.removeEventListener('click', handler, true);
   }, []);
-  
+
   return (
     <>
       <BackgroundEffects />
@@ -40,9 +41,9 @@ const Inner: React.FC = () => {
         <Header />
         <WinampPlayer />
         <Navigation />
-        <main id="content-area" role="main">
+        <main id="content-area">
           <ErrorBoundary>
-            <React.Suspense fallback={<div>Loading section...</div>}>
+            <Suspense fallback={<div className="section-loading">Loading sections...</div>}>
               <HomeSection />
               <VideoSection />
               <PhotoSection />
@@ -50,7 +51,7 @@ const Inner: React.FC = () => {
               <WebdevSection />
               <BlogSection />
               <MiscSection />
-            </React.Suspense>
+            </Suspense>
           </ErrorBoundary>
         </main>
         <footer>

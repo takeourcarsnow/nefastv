@@ -13,7 +13,7 @@ import { ViewerModal } from './ViewerModal.tsx';
 
 interface FlatPhoto extends PhotoItem { albumTitle?: string; }
 
-const PhotoSection: React.FC = () => {
+export const PhotoSection: React.FC = () => {
   const { active } = useSection();
   const { data, loading, error } = useFetchJson<PhotoEntry[]>('/data/photos.json');
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
@@ -63,5 +63,3 @@ const PhotoSection: React.FC = () => {
     </div>
   );
 };
-
-export default PhotoSection;

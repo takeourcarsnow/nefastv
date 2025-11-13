@@ -6,7 +6,7 @@ import { useSection } from './SectionContext.tsx';
 import { useFetchJson } from './hooks.ts';
 import type { WebdevProjectItem } from '../lib/types/content.ts';
 
-const WebdevSection: React.FC = () => {
+export const WebdevSection: React.FC = () => {
   const { active } = useSection();
   const { data, loading, error } = useFetchJson<WebdevProjectItem[]>('/data/webdev.json');
   return (
@@ -32,5 +32,3 @@ const WebdevSection: React.FC = () => {
     </div>
   );
 };
-
-export default WebdevSection;

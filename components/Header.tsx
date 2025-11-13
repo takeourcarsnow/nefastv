@@ -4,7 +4,7 @@ import { useSection } from './SectionContext.tsx';
 import { HeaderEffects } from './HeaderEffects.tsx';
 
 // Enhanced scrolling text effects
-function useScrollingTextEffects(ref: React.RefObject<any>) {
+function useScrollingTextEffects(ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -56,7 +56,7 @@ function useScrollingTextEffects(ref: React.RefObject<any>) {
 }
 
 // Simple glitch effect placeholder (original had complex logic)
-function useGlitch(ref: React.RefObject<any>) {
+function useGlitch(ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;

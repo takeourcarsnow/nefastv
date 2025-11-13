@@ -51,6 +51,46 @@ export const ViewerModal: React.FC<ViewerModalProps> = ({ photos, index, onClose
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
+  // accessibility: trap focus inside modal and prevent background scroll
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    // focus the container for screen readers / keyboard users
+    const prevActive = document.activeElement as HTMLElement | null;
+    node.setAttribute('role', 'dialog');
+    node.setAttribute('aria-modal', 'true');
+    node.setAttribute('aria-label', photos[index]?.title ?? 'Image viewer');
+    node.tabIndex = -1;
+    node.focus({ preventScroll: true });
+
+    function handleKey(e: KeyboardEvent) {
+      if (e.key !== 'Tab') return;
+      const nodeEl = node as HTMLElement;
+      const focusable = nodeEl.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', handleKey);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', handleKey);
+      if (prevActive) prevActive.focus();
+    };
+  }, [containerRef, index, photos]);
+
   if (!photo) return null;
 
   return (

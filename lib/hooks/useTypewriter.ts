@@ -2,7 +2,7 @@
 import React from 'react';
 import { TerminalLine } from '../types/TerminalLine.ts';
 
-export const useTypewriter = (container: React.RefObject<any>, lines: TerminalLine[] | undefined, active: boolean, sectionId: string) => {
+export const useTypewriter = (container: React.RefObject<HTMLElement | null>, lines: TerminalLine[] | undefined, active: boolean, sectionId: string) => {
   React.useEffect(() => {
     if (!active || !lines || !container.current) return;
     const el = container.current;

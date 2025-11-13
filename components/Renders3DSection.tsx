@@ -6,7 +6,7 @@ import { useSection } from './SectionContext.tsx';
 import { useFetchJson } from './hooks.ts';
 import type { Render3DItem } from '../lib/types/content.ts';
 
-const Renders3DSection: React.FC = () => {
+export const Renders3DSection: React.FC = () => {
   const { active } = useSection();
   const { data, loading, error } = useFetchJson<Render3DItem[]>('/data/3d.json');
   return (
@@ -31,5 +31,3 @@ const Renders3DSection: React.FC = () => {
     </div>
   );
 };
-
-export default Renders3DSection;

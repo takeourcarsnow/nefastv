@@ -10,7 +10,7 @@ export const usePersistedState = <T,>(key: string, defaultValue: T) => {
       if (stored) {
         try {
           setState(JSON.parse(stored));
-        } catch (e) {
+        } catch {
           // Fallback: some older/external code might have stored raw values (e.g. en)
           // Try to coerce common primitives, otherwise use the raw string.
           if (stored === 'true' || stored === 'false') {

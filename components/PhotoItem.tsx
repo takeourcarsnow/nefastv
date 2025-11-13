@@ -10,7 +10,7 @@ interface PhotoItemProps {
   onClick: () => void;
 }
 
-export const PhotoItemComponent: React.FC<PhotoItemProps> = React.memo(({ photo, onClick }) => {
+export const PhotoItemComponent: React.FC<PhotoItemProps> = ({ photo, onClick }) => {
   return (
     <div className="grid-item photo-item" style={{ cursor: 'pointer' }} onClick={onClick}>
       <LazyImage
@@ -43,4 +43,4 @@ export const PhotoItemComponent: React.FC<PhotoItemProps> = React.memo(({ photo,
       </div>
     </div>
   );
-});
+};

@@ -1,11 +1,23 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+// Stable interval hook which stores the latest callback in a ref to avoid
+// re-creating intervals when the callback changes identity.
 export function useInterval(callback: () => void, delay: number) {
+  const savedCallback = useRef(callback);
+
+  // Remember the latest callback.
   useEffect(() => {
-    const id: ReturnType<typeof setInterval> = setInterval(callback, delay);
+    savedCallback.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    if (delay == null) return;
+    const id = setInterval(() => {
+      savedCallback.current();
+    }, delay);
     return () => clearInterval(id);
-  }, [callback, delay]);
+  }, [delay]);
 }
 
 export function useNow() {
@@ -16,36 +28,37 @@ export function useNow() {
 
 export function usePerformanceMonitor() {
   useEffect(() => {
-    if (typeof window === 'undefined' || !('performance' in window) || typeof PerformanceObserver === 'undefined') return;
+    if (typeof window === 'undefined' || typeof PerformanceObserver === 'undefined') return;
 
     const observer = new PerformanceObserver((list: PerformanceObserverEntryList) => {
-      list.getEntries().forEach((entry) => {
-        if (entry.entryType === 'navigation') {
-          const navEntry = entry as PerformanceNavigationTiming;
-          console.log(`Page load time: ${navEntry.loadEventEnd - navEntry.fetchStart}ms`);
+      for (const entry of list.getEntries()) {
+        try {
+          if (entry.entryType === 'navigation') {
+            const navEntry = entry as PerformanceNavigationTiming;
+            // eslint-disable-next-line no-console
+            console.info(`Page load time: ${Math.round(navEntry.loadEventEnd - navEntry.fetchStart)}ms`);
+          } else if (entry.entryType === 'largest-contentful-paint') {
+            // eslint-disable-next-line no-console
+            console.info(`LCP: ${Math.round(entry.startTime)}ms`);
+          } else if (entry.entryType === 'paint') {
+            // First Paint / First Contentful Paint
+            // eslint-disable-next-line no-console
+            console.info(`Paint: ${entry.name} @ ${Math.round(entry.startTime)}ms`);
+          } else if (entry.entryType === 'layout-shift') {
+            // layout-shift entries may expose a `value` property in supported browsers
+            // eslint-disable-next-line no-console
+            console.info(`Layout shift (CLS): ${(((entry as unknown) as { value?: number }).value ?? 0).toFixed(3)}`);
+          }
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.warn('Error processing performance entry', err);
         }
-        if (entry.entryType === 'largest-contentful-paint') {
-          console.log(`LCP: ${entry.startTime}ms`);
-        }
-        if (entry.entryType === 'first-input') {
-          const fidEntry = entry as PerformanceEventTiming;
-          console.log(`FID: ${fidEntry.processingStart - fidEntry.startTime}ms`);
-        }
-        if (entry.entryType === 'layout-shift') {
-          const clsEntry = entry as any;
-          console.log(`CLS: ${clsEntry.value}`);
-        }
-      });
+      }
     });
 
     try {
-      // PerformanceObserver.observe accepts an options object for entryTypes
-      // defensively ensure observe exists and call with a plain object
       if (typeof observer.observe === 'function') {
-        observer.observe({ entryTypes: ['navigation', 'largest-contentful-paint', 'first-input', 'layout-shift'] });
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn('PerformanceObserver.observe is not a function on this platform');
+        observer.observe({ entryTypes: ['navigation', 'largest-contentful-paint', 'paint', 'layout-shift'] });
       }
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -56,51 +69,56 @@ export function usePerformanceMonitor() {
   }, []);
 }
 
-export function useFetchJson<T = unknown>(url: string): { data: T | null; loading: boolean; error: string | null } {
+// Simple in-memory response cache with TTL to reduce redundant network requests.
+type CacheEntry = { data: unknown; expiresAt: number };
+const FETCH_CACHE = new Map<string, CacheEntry>();
+
+export function useFetchJson<T = unknown>(url: string, ttlSeconds = 300): { data: T | null; loading: boolean; error: string | null } {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     let cancelled = false;
-    const abortController = new AbortController();
-    
-    setLoading(true);
-    setError(null);
-    
-    fetch(url, {
-      signal: abortController.signal,
-      headers: {
-        'Cache-Control': 'public, max-age=3600', // 1 hour cache
-      },
-      next: { revalidate: 3600 }, // For Next.js fetch
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        return r.json();
-      })
-      .then(json => { 
-        if (!cancelled) { 
-          setData(json); 
-          setLoading(false); 
-        } 
-      })
-      .catch((e: unknown) => { 
-        if (!cancelled) {
-          // if it's an AbortError the controller will have handled it
-          const err = e as Error;
-          if (err?.name !== 'AbortError') {
-            setError(err?.message ?? String(e));
-            setLoading(false);
-          }
-        }
-      });
-    
-    return () => { 
-      cancelled = true; 
-      abortController.abort();
+    const controller = new AbortController();
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+
+      const key = url;
+      const now = Date.now();
+      const cached = FETCH_CACHE.get(key);
+      if (cached && cached.expiresAt > now) {
+        setData(cached.data as T);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(url, { signal: controller.signal, headers: { 'Cache-Control': 'no-cache' } });
+        if (!res.ok) throw new Error(res.statusText || `HTTP ${res.status}`);
+        const json = await res.json();
+        if (cancelled) return;
+        FETCH_CACHE.set(key, { data: json, expiresAt: now + ttlSeconds * 1000 });
+        setData(json as T);
+        setLoading(false);
+      } catch (e: unknown) {
+        if (cancelled) return;
+        const err = e as Error;
+        if (err.name === 'AbortError') return;
+        setError(err.message ?? String(e));
+        setLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
     };
-  }, [url]);
-  
+  }, [url, ttlSeconds]);
+
   return { data, loading, error };
 }

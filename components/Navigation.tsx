@@ -15,7 +15,7 @@ const sections: { id: SectionId; label: string }[] = [
 export const Navigation: React.FC = () => {
   const { active, setActive } = useSection();
   return (
-    <nav id="main-nav" role="navigation" aria-label="Main site navigation">
+    <nav id="main-nav">
       {sections.map(s => (
         <a
           key={s.id}
@@ -23,7 +23,6 @@ export const Navigation: React.FC = () => {
           onClick={(e) => { e.preventDefault(); setActive(s.id); }}
           className={active === s.id ? 'active' : ''}
           href={`#${s.id}`}
-          aria-current={active === s.id ? 'page' : undefined}
         >
           {s.label}
         </a>
