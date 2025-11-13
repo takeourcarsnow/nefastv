@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useEffect, useState } from 'react';
-import { TerminalLines } from './sectionTerminalContent.tsx';
+import { TerminalLines } from './TerminalLines.tsx';
 import { useSection } from './SectionContext.tsx';
 import type { PhotoEntry, Render3DItem, VideoItem, WebdevProjectItem, BlogPostMeta } from '../types/content.ts';
 

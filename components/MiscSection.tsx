@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { TerminalLines } from './sectionTerminalContent.tsx';
+import { TerminalLines } from './TerminalLines.tsx';
 import { useSection } from './SectionContext.tsx';
 import { useFetchJson } from './hooks.ts';
 

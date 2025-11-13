@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useMemo, useState, useEffect } from 'react';
-import { TerminalLines } from './sectionTerminalContent.tsx';
+import { TerminalLines } from './TerminalLines.tsx';
 import { useSection } from './SectionContext.tsx';
 import { useFetchJson } from './hooks.ts';
 import type { PhotoEntry, PhotoItem, AlbumItem } from '../types/content.ts';
