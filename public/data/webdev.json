@@ -22,7 +22,7 @@
   {
     "id": "PasakAI",
     "title": "PasakAI.lt",
-    "description": "Interactive storytelling platform for Lithuanian folk tales",
+    "description": "Interactive storytelling platform for creating and sharing AI-generated children stories",
     "image": "images/webdev/pasakai.jpg",
     "thumbnail": "images/webdev/thumbnails/pasakai.jpg",
     "url": "https://pasakai.lt",
@@ -32,7 +32,7 @@
   {
     "id": "InHaiku",
     "title": "InHaiku.lt", 
-    "description": "AI-powered haiku generator with minimalist aesthetics",
+    "description": "AI-powered haikus generated using today's headlines with minimalist aesthetics",
     "image": "images/webdev/inhaiku.jpg",
     "thumbnail": "images/webdev/thumbnails/inhaiku.jpg",
     "url": "https://inhaiku.lt",
@@ -62,7 +62,7 @@
   {
     "id": "greentext",
     "title": "Greentext.fun",
-    "description": "Anonymous greentext story sharing platform",
+    "description": "AI-powered Greentext story generator",
     "image": "images/webdev/greentext.jpg",
     "thumbnail": "images/webdev/thumbnails/greentext.jpg",
     "url": "https://greentext.fun",
@@ -78,5 +78,15 @@
     "url": "https://asciid.art",
     "date": "2025-07-16",
     "tags": ["webdev", "ascii", "art", "converter"]
+  },
+  {
+    "id": "tunedin",
+    "title": "TunedIn",
+    "description": "a social media platform for sharing your favorite music",
+    "image": "/tunedin.jpg",
+    "thumbnail": "/tunedin.jpg",
+    "url": "",
+    "date": "2025-11-14",
+    "tags": ["webdev", "social", "music"]
   }
 ]
