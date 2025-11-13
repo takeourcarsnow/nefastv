@@ -1,5 +1,25 @@
 [
   {
+    "id": "tldrwire",
+    "title": "TLDRWire.xyz",
+    "description": "Get the news, minus the noise. AI powered news aggregator.",
+    "image": "images/webdev/tldrwire.jpg",
+    "thumbnail": "images/webdev/thumbnails/tldrwire.jpg",
+    "url": "https://tldrwire.xyz",
+    "date": "2025-11-13",
+    "tags": ["webdev", "news", "aggregator", "ai"]
+  },
+  {
+    "id": "monolog",
+    "title": "Monolog.ink",
+    "description": "Capture a meaningful moment each day in a private journal — build a lasting, ad-free archive of your life.",
+    "image": "images/webdev/monolog.jpg",
+    "thumbnail": "images/webdev/thumbnails/monolog.jpg",
+    "url": "https://monolog.ink",
+    "date": "2025-11-13",
+    "tags": ["webdev", "journal", "private", "archive"]
+  },
+  {
     "id": "PasakAI",
     "title": "PasakAI.lt",
     "description": "Interactive storytelling platform for Lithuanian folk tales",
